@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Ad Hoc Video Call</title>
+</head>
+
+<body>
+    <h1>Had Hoc Video Call</h1>
+    <span>Make a video call, had hoc, peer to peer, no account required.</span>
+    <div id="actions">
+        <button id="webcamButton">Start Video Call</button>
+        <span>Or</span>
+        <div id="answering-action">
+            <input id="answerInput" placeholder="Inset Call ID" />
+            <button id="answerButton">Answer Video Call</button>
+        </div>
+        <div id="instructions">
+            <div>
+                <h2>How to:</h2>
+                <ol>
+                    <li> Start a call.</li>
+                    <li> Copy the call ID.</li>
+                    <li> Send it to a friend.</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+
+    <div id="video-content">
+        <input id="callinput" readonly />
+        <button id="copybutton">Copy</button>
+        <button id="hangbutton">Hang Up</button>
+        <div class="videos">
+            <div>
+                <video class="remote-video" id="remoteVideo" autoplay playsinline></video>
+            </div>
+            <span>
+                <video class="local-video" id="webcamVideo" autoplay playsinline></video>
+            </span>
+        </div>
+
+
+        <script type="module" src="/main.js"></script>
+    </div>
+</body>
+
+</html>
