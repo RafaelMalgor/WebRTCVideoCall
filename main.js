@@ -92,6 +92,7 @@ answerButton.onclick = async () => {
     const callData = (await callDoc.get()).data();
 
     if (callData) {
+        callInput.value = callId;
         await startStreams();
         pc.onicecandidate = (event) => {
             event.candidate && answerCandidates.add(event.candidate.toJSON());

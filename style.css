@@ -68,18 +68,41 @@ color:red;
 }
 
 .local-video {
-  width: 20vw;
-  height: 15vw;
   background: #2c3e50;
+  padding: 3px;
 }
 
 .remote-video {
-  width: 40vw;
-  height: 30vw;
   background: #2c3e50;
+  padding: 3px;
+}
+
+@media only screen and (min-width: 600px){
+  .local-video {
+    width: 15vw;
+    background: #2c3e50;
+  }
+
+  .remote-video {
+    width: 40vw;
+    background: #2c3e50;
+  }
+}
+
+@media only screen and (max-width: 600px){
+  .local-video {
+    width: 50vw;
+    background: #2c3e50;
+  }
+
+  .remote-video {
+    width: 95vw;
+    background: #2c3e50;
+  }
 }
 
 .videos {
+  margin-top: 5px;
   display: flex;
   flex-direction: column;
   align-items: center;
