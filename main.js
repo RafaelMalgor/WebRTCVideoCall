@@ -43,13 +43,16 @@ const content = document.getElementById('video-content');
 const hangButton = document.getElementById('hangbutton');
 const actions = document.getElementById('actions');
 const copyButton = document.getElementById('copybutton');
+const invalididSpan = document.getElementById('invalid-id');
 
 // We save the starting state to avoid conflicts with CSS
 let actionsDisplay = actions.style.display;
 let contentDisplay = content.style.display;
+let invalididDisplay = invalididSpan.style.display;
 
 let allowAnswer = false;
 content.style.display = "none";
+invalididSpan.style.display = "none";
 
 copyButton.onclick = () => {
     callInput.select();
@@ -69,61 +72,59 @@ webcamButton.onclick = async () => {
 };
 
 hangButton.onclick = () => {
-    // Remove tracks from local stream to peer connection
-    pc.close();
-
-    webcamVideo.srcObject = null;
-    remoteVideo.srcObject = null;
-    webcamButton.textContent = "Start Video Call";
-    content.style.display = "none";
-    actions.style.display = actionsDisplay;
+    endCall();
 };
 
 
 answerInput.onchange = () => {
     allowAnswer = answerInput.value.length > 0;
+    invalididSpan.style.display = "none";
 };
 
 answerButton.onclick = async () => {
     if (!allowAnswer) return;
-    await startStreams();
 
     const callId = answerInput.value;
     const callDoc = firestore.collection('calls').doc(callId);
     const answerCandidates = callDoc.collection('answerCandidates');
     const offerCandidates = callDoc.collection('offerCandidates');
 
-    pc.onicecandidate = (event) => {
-        event.candidate && answerCandidates.add(event.candidate.toJSON());
-    };
-
     const callData = (await callDoc.get()).data();
 
-    const offerDescription = callData.offer;
-    await pc.setRemoteDescription(new RTCSessionDescription(offerDescription));
+    if (callData) {
+        await startStreams();
+        pc.onicecandidate = (event) => {
+            event.candidate && answerCandidates.add(event.candidate.toJSON());
+        };
 
-    const answerDescription = await pc.createAnswer();
-    await pc.setLocalDescription(answerDescription);
+        const offerDescription = callData.offer;
+        await pc.setRemoteDescription(new RTCSessionDescription(offerDescription));
 
-    const answer = {
-        type: answerDescription.type,
-        sdp: answerDescription.sdp,
-    };
+        const answerDescription = await pc.createAnswer();
+        await pc.setLocalDescription(answerDescription);
 
-    await callDoc.update({ answer });
+        const answer = {
+            type: answerDescription.type,
+            sdp: answerDescription.sdp,
+        };
 
-    offerCandidates.onSnapshot((snapshot) => {
-        snapshot.docChanges().forEach((change) => {
-            console.log(change);
-            if (change.type === 'added') {
-                let data = change.doc.data();
-                pc.addIceCandidate(new RTCIceCandidate(data));
-            }
+        await callDoc.update({ answer });
+
+        offerCandidates.onSnapshot((snapshot) => {
+            snapshot.docChanges().forEach((change) => {
+                console.log(change);
+                if (change.type === 'added') {
+                    let data = change.doc.data();
+                    pc.addIceCandidate(new RTCIceCandidate(data));
+                }
+            });
         });
-    });
 
-    content.style.display = contentDisplay;
-    actions.style.display = "none";
+        content.style.display = contentDisplay;
+        actions.style.display = "none";
+    } else {
+        invalididSpan.style.display = invalididDisplay;
+    }
 };
 
 async function createCall() {
@@ -189,4 +190,15 @@ async function startStreams() {
 
     webcamVideo.srcObject = localStream;
     remoteVideo.srcObject = remoteStream;
+}
+
+function endCall() {
+    // Remove tracks from local stream to peer connection
+    pc.close();
+
+    webcamVideo.srcObject = null;
+    remoteVideo.srcObject = null;
+    webcamButton.textContent = "Start Video Call";
+    content.style.display = "none";
+    actions.style.display = actionsDisplay;
 }
