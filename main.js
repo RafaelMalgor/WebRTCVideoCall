@@ -179,9 +179,7 @@ async function startStreams() {
 
     // Push tracks from local stream to peer connection
     localStream.getTracks().forEach((track) => {
-        if (track.kind == "video") {
-            pc.addTrack(track, localStream);
-        }
+        pc.addTrack(track, localStream);
     });
 
     // Pull tracks from remote stream, add to video stream
